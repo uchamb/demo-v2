@@ -1,0 +1,24 @@
+{
+  "name": "demo-v2",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tests/landscape.mjs && node tests/explorer.mjs && node tests/layouts.mjs && node tests/night.mjs",
+    "test:landscape": "node tests/landscape.mjs",
+    "test:explorer": "node tests/explorer.mjs",
+    "test:layouts": "node tests/layouts.mjs",
+    "test:night": "node tests/night.mjs"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "vite": "6.4.1",
+    "@playwright/test": "1.55.1"
+  },
+  "description": "Explore VR Vake Sky Tower in its mapped neighborhood, move through sections and floors, inspect furnished apartments, and switch between day, sunset and night."
+}
