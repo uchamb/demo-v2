@@ -1,3 +1,4 @@
+// Reduce software-rendering cost in CI while preserving CSS viewport and interaction coordinates.
 import { chromium, expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -25,7 +26,7 @@ const project=(page,point)=>page.evaluate(point=>{
 },point);
 try{
   for(const s of TOWER_SECTIONS){assert.equal(floorAtHeight(s,s.bottom),s.firstFloor);assert.equal(floorAtHeight(s,s.top),s.lastFloor);assert.equal(floorAtHeight(s,s.bottom-.01),null);}
-  const page=await browser.newPage({viewport:{width:1440,height:1000}});await ready(page);
+  const page=await browser.newPage({deviceScaleFactor:process.env.CI ? 0.5 : 1,viewport:{width:1440,height:1000}});await ready(page);
   assert(await page.evaluate(()=>{
     const tower=window.demo2.scene.getObjectByName('demo2 tower');
     const glass=tower.children.find(m=>m.isMesh&&!m.isInstancedMesh&&m.material.color.getHexString()==='658a92');

@@ -1,3 +1,4 @@
+// Reduce software-rendering cost in CI while preserving CSS viewport and interaction coordinates.
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -6,7 +7,7 @@ const output=process.env.ARTIFACT_DIR||'artifacts',base=process.env.SITE_URL||'h
 const b=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 await mkdir(output,{recursive:true});const errors=[];
 try{
- const p=await b.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});p.on('pageerror',e=>errors.push(e.message));
+ const p=await b.newPage({deviceScaleFactor:process.env.CI ? 0.5 : 1,viewport:{width:1440,height:1000},reducedMotion:'reduce'});p.on('pageerror',e=>errors.push(e.message));
  await p.goto(`${base}/`);await p.waitForFunction(()=>window.demo2&&document.querySelector('canvas').dataset.rendered==='true');
  await p.locator('[data-section="3"]').click();await p.locator('[data-floor="40"]').click();
  const layout=await p.evaluate(()=>{const {floorPlan}=window.demo2.explorer;return {stats:floorPlan.stats,units:floorPlan.apartments.map(({number,type,area,entrance,points})=>({number,type,area,entrance,points}))};});

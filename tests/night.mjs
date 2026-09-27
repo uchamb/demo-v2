@@ -1,3 +1,4 @@
+// Reduce software-rendering cost in CI while preserving CSS viewport and interaction coordinates.
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -5,7 +6,7 @@ const base=process.env.SITE_URL||'http://localhost:5183/demo-v2',output=process.
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const errors=[];await mkdir(output,{recursive:true});
 try{
- const page=await browser.newPage({viewport:{width:1280,height:900}});page.on('pageerror',e=>errors.push(e.message));
+ const page=await browser.newPage({deviceScaleFactor:process.env.CI ? 0.5 : 1,viewport:{width:1280,height:900}});page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${base}/`);await page.waitForFunction(()=>window.demo2&&!window.demo2.state.transitioning);
  await page.locator('#focus-place').click();await page.waitForFunction(()=>!window.demo2.state.transitioning);
  const start=await page.evaluate(()=>{

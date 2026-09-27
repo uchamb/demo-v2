@@ -1,3 +1,4 @@
+// Reduce software-rendering cost in CI while preserving CSS viewport and interaction coordinates.
 import { chromium, expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -25,7 +26,7 @@ const settled = async page => {
 };
 const distance = page => page.evaluate(() => window.demo2.camera.position.distanceTo(window.demo2.controls.target));
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }); await collect(page);
+  const page = await browser.newPage({deviceScaleFactor:process.env.CI ? 0.5 : 1, viewport: { width: 1440, height: 1000 } }); await collect(page);
   await page.goto(`${base}/?from=test`); await expect(page).toHaveURL(`${base}/?from=test`); await ready(page);
   await expect(page).toHaveTitle('demo2 — A wider perspective');
   const stats = await page.evaluate(() => ({ ...window.demo2.stats, calls: window.demo2.renderer.info.render.calls, triangles: window.demo2.renderer.info.render.triangles }));
@@ -98,7 +99,7 @@ try {
   await page.waitForTimeout(250); assert.equal(await page.evaluate(() => window.demo2.renderer.info.render.frame), frame);
   console.log('Checked presets, lighting, source notes and idle rendering');
   await page.close(); // Release the desktop WebGL context before software-rendered mobile checks.
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1, reducedMotion: 'reduce' });
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor:process.env.CI ? 0.5 : 1, reducedMotion: 'reduce' });
   const mobile = await context.newPage(); await collect(mobile); await mobile.goto(`${base}/`); await ready(mobile);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth), 390);
   await expect(mobile.locator('#place-body')).toBeHidden(); await expect(mobile.locator('#layer-options')).toBeHidden();
