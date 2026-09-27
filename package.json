@@ -20,5 +20,5 @@
     "vite": "6.4.1",
     "@playwright/test": "1.55.1"
   },
-  "description": "Explore VR Vake Sky Tower in its mapped neighborhood, move through sections and floors, inspect furnished apartments, and switch between day, sunset and night."
+  "description": "Explore demo2: an interactive tower and neighborhood with floor, apartment, and lighting controls."
 }
