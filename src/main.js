@@ -12,7 +12,6 @@ try {
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 } catch {
   $('#loading').replaceChildren(Object.assign(document.createElement('p'), { textContent: 'This landscape needs WebGL 2. Try a browser with hardware acceleration enabled.' }));
-  $('#loading').append(Object.assign(document.createElement('a'), { textContent: 'View the project and reference images ↗', href: 'https://vrvake.ge/' }));
 }
 if (renderer) start();
 function start() {
@@ -154,8 +153,6 @@ function start() {
   for(const name of ['layers','place'])$(`#${name}-toggle`).onclick=()=>setDisclosure(name,$(`#${name}-toggle`).getAttribute('aria-expanded')!=='true');
   if(innerWidth<700){setDisclosure('layers',false);setDisclosure('place',false);}
   if(innerHeight<520)setDisclosure('place',false);
-  $('#sources-close').onclick=()=>$('#sources-dialog').close();
-  $('#sources-dialog').addEventListener('click',e=>{if(e.target===$('#sources-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
   function zoom(factor){
     if(state.transitioning)return;
     const offset=camera.position.clone().sub(controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*factor,controls.minDistance,controls.maxDistance));
@@ -202,7 +199,7 @@ function start() {
       if(!explorer.isDetailed())selectPlace(landscape.places[0]);
     }else if(!explorer.isDetailed()&&hit.object.userData.osmId){
       const d=hit.object.userData;
-      selectPlace({id:d.placeId,name:d.name,category:'MAPPED NEIGHBORHOOD',description:`${d.heightSource}: approximately ${Math.round(d.height)} m. Footprint from OpenStreetMap; façade details are illustrative.`,address:`OpenStreetMap building ${d.osmId}`,target:[d.center[0],d.center[1]/2,d.center[2]],number:'↗'});
+      selectPlace({id:d.placeId,name:d.name,category:'MAPPED NEIGHBORHOOD',description:`${d.heightSource}: approximately ${Math.round(d.height)} m. Footprint from OpenStreetMap; façade details are illustrative.`,address:'Neighborhood context',target:[d.center[0],d.center[1]/2,d.center[2]],number:'↗'});
     }
   });
   viewport.addEventListener('keydown',e=>{
@@ -264,5 +261,5 @@ function start() {
   requestAnimationFrame(animate);
   $('#loading').classList.add('loaded');
   // Read-only scene handles aid regression checks and downstream reuse.
-  window.vakeLandscape={scene,camera,controls,renderer,state,explorer,stats:landscape.stats,nightWindows:landscape.nightWindows,groups:landscape.groups,places:landscape.places};
+  window.demo2={scene,camera,controls,renderer,state,explorer,stats:landscape.stats,nightWindows:landscape.nightWindows,groups:landscape.groups,places:landscape.places};
 }

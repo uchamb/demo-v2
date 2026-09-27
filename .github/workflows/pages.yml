@@ -28,6 +28,22 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Install browser for validation
+        if: github.event_name == 'pull_request'
+        run: npx playwright install --with-deps chromium
+      - name: Validate demo in browser
+        if: github.event_name == 'pull_request'
+        timeout-minutes: 15
+        run: |
+          npm run preview > /tmp/demo-preview.log 2>&1 &
+          demo_preview_pid=$!
+          trap 'kill "$demo_preview_pid" || true' EXIT
+          for attempt in {1..30}; do
+            curl --fail --silent http://localhost:5183/demo-v2/ > /dev/null && break
+            sleep 1
+          done
+          export CHROME_PATH=$(node -p 'require("@playwright/test").chromium.executablePath()')
+          npm test
       - name: Configure Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5

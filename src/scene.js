@@ -4,7 +4,6 @@ import neighborhood from './data/neighborhood.json';
 import { createNightWindows } from './night-windows.js';
 import { TOWER_SECTIONS } from './tower-config.js';
 
-export const CENTER = neighborhood.center;
 const box = new THREE.BoxGeometry(1, 1, 1);
 const sphere = new THREE.IcosahedronGeometry(1, 1);
 const cone = new THREE.ConeGeometry(1, 1, 7);
@@ -147,7 +146,7 @@ function roadGeometry(points, width, lift) {
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); g.setIndex(indices); g.computeVertexNormals(); return g;
 }
 function makeTower(root, vegetation) {
-  const tower = new THREE.Group(); tower.name = 'VR Vake Sky Tower • reference interpretation'; root.add(tower);
+  const tower = new THREE.Group(); tower.name = 'demo2 tower'; root.add(tower);
   tower.rotation.y = -.22;
   const b = new Batches(tower), plants = new Batches(vegetation);
   mesh(roundedGeometry(57, 48, 9, 1), M.paving, tower);
@@ -221,7 +220,7 @@ function makeTower(root, vegetation) {
 }
 export function createLandscape() {
   seed = 43871;
-  const root = new THREE.Group(); root.name = 'VR Vake • georeferenced neighborhood';
+  const root = new THREE.Group(); root.name = 'demo2 neighborhood';
   const groups = {};
   for (const name of ['terrain', 'buildings', 'vegetation', 'roads', 'project']) { groups[name] = new THREE.Group(); groups[name].name = name; root.add(groups[name]); }
   const g = new THREE.PlaneGeometry(1000, 940, 100, 94); g.rotateX(-Math.PI / 2);
@@ -287,7 +286,7 @@ export function createLandscape() {
     const base = Math.max(...p.map(([x,z])=>groundHeight(x,z)));
     const geometry = new THREE.ExtrudeGeometry(shape(p),{depth:height,bevelEnabled:false});geometry.rotateX(-Math.PI/2);
     const mat = [M.cream,M.light,M.slab][f.id%3]; const m = mesh(geometry,mat,groups.buildings,0,base,0);
-    const name = f.tags['name:en'] || (f.tags['addr:housenumber'] ? `${f.tags['addr:housenumber']} · ${f.tags.building==='apartments'?'Residences':'Neighborhood building'}` : 'Neighborhood building');
+    const name = `Neighborhood building ${buildings.length+1}`;
     m.userData = {placeId:`osm-${f.id}`,name,osmId:f.id,height,heightSource:Number.isFinite(mappedHeight)?'Mapped height':Number.isFinite(levels)?'Mapped floor count × 3.2 m':'Estimated height',center:[cx,base+height,cz]};
     buildings.push({points:p,center:[cx,cz],height,base,mesh:m});picks.push(m);
     const roofGeo = new THREE.ExtrudeGeometry(shape(p),{depth:.55,bevelEnabled:false});roofGeo.rotateX(-Math.PI/2);mesh(roofGeo,M.roof,groups.buildings,0,base+height,0);
@@ -305,7 +304,7 @@ export function createLandscape() {
   }
   details.flush();
   // Stadium stands follow the mapped stadium polygon rather than a relocated icon.
-  const stadium = features.find(f=>f.tags.leisure==='stadium' && f.tags['name:en']==='Mikheil Meskhi Stadium');
+  const stadium = features.find(f=>f.tags.leisure==='stadium' && f.id===25753200);
   let stadiumCenter=[130,240];
   if(stadium){
     stadiumCenter=centroid(stadium.points);
@@ -356,13 +355,13 @@ export function createLandscape() {
   }
   const nightWindows=[createNightWindows(groups.buildings,windowPositions,4271),createNightWindows(tower,towerWindows,9137,.2)];
   const places = [
-    {id:'tower',name:'VR Vake Sky Tower',label:'VR VAKE SKY TOWER',category:'THE CENTER OF IT ALL',description:'A sculptural glass tower with planted sky terraces, above the green edge of Vake.',address:'49 Ilia Chavchavadze Avenue',position:[0,265,0],target:[0,122,0],number:'01'},
-    {id:'stadium',name:'Mikheil Meskhi Stadium',label:'Mikheil Meskhi Stadium',category:'SPORT & COMMUNITY',description:'The mapped stadium and its sports grounds sit south of the tower, beside Vake Park. The stands are an illustrative reconstruction.',address:'Mapped OpenStreetMap location · wider context',position:[stadiumCenter[0],groundHeight(...stadiumCenter)+17,stadiumCenter[1]],target:[stadiumCenter[0],15,stadiumCenter[1]],number:'02'},
-    {id:'park',name:'Vake Park edge',label:'Vake Park',category:'ROOM TO BREATHE',description:'Explore the green, park-side setting and pedestrian paths. The park continues east and south beyond the local study area.',address:'Wider neighborhood · illustrative planting',position:[350,groundHeight(350,240)+15,240],target:[300,12,240],number:'03'},
-    {id:'avenue',name:'Chavchavadze Avenue',label:'Chavchavadze Avenue',category:'CONNECTED TO THE CITY',description:'The avenue connects the project to the wider Vake district. Road centerlines follow OpenStreetMap; lane widths and street details are illustrative.',address:'Ilia Chavchavadze Avenue · Vake, Tbilisi',position:[-140,8,92],target:[-100,8,80],number:'04'},
+    {id:'tower',name:'demo2',label:'demo2',category:'THE CENTER OF IT ALL',description:'A sculptural glass tower with planted sky terraces, above the neighborhood park.',address:'Tower plaza',position:[0,265,0],target:[0,122,0],number:'01'},
+    {id:'stadium',name:'Neighborhood stadium',label:'Neighborhood stadium',category:'SPORT & COMMUNITY',description:'The mapped stadium and its sports grounds sit south of the tower, beside Neighborhood park. The stands are an illustrative reconstruction.',address:'Mapped OpenStreetMap location · wider context',position:[stadiumCenter[0],groundHeight(...stadiumCenter)+17,stadiumCenter[1]],target:[stadiumCenter[0],15,stadiumCenter[1]],number:'02'},
+    {id:'park',name:'Neighborhood park',label:'Neighborhood park',category:'ROOM TO BREATHE',description:'Explore the green, park-side setting and pedestrian paths. The park continues east and south beyond the local study area.',address:'Wider neighborhood · illustrative planting',position:[350,groundHeight(350,240)+15,240],target:[300,12,240],number:'03'},
+    {id:'avenue',name:'Central avenue',label:'Central avenue',category:'CONNECTED TO THE CITY',description:'The avenue connects the project to the wider neighborhood. Road centerlines follow OpenStreetMap; lane widths and street details are illustrative.',address:'Neighborhood avenue',position:[-140,8,92],target:[-100,8,80],number:'04'},
   ];
-  const neptune = features.find(f=>f.tags['name:en']==='Neptune Sport Complex');
-  if(neptune){const [x,z]=centroid(neptune.points);places.push({id:'neptune',name:'Neptune Sport Complex',label:'Neptune Sport Complex',category:'IN THE NEIGHBORHOOD',description:'An existing sports complex west of the project, shown at its mapped footprint with height derived from the mapped floor count.',address:'49a Chavchavadze Avenue · OpenStreetMap',position:[x,18,z],target:[x,10,z],number:'05'});}
+  const sports = features.find(f=>f.id===92193048);
+  if(sports){const [x,z]=centroid(sports.points);places.push({id:'sports',name:'Sports center',label:'Sports center',category:'IN THE NEIGHBORHOOD',description:'An existing sports complex west of the project, shown at its mapped footprint with height derived from the mapped floor count.',address:'Sports district',position:[x,18,z],target:[x,10,z],number:'05'});}
   return {root,groups,tower,picks,places,buildings,stats:{buildings:buildings.length,trees:treeCount,roads:roads.length,contextWidth:1000,contextDepth:940},nightWindows,setNight(progress){
     M.warm.emissiveIntensity=progress*2;
     return nightWindows.reduce((changed,batch)=>batch.setProgress(progress)||changed,false);
